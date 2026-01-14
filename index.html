@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>body { margin: 0; background: #000; display: flex; justify-content: center; }</style>
+</head>
+<body>
+    <canvas id="wallpaper" width="1080" height="2340" style="display:none;"></canvas>
+    <img id="output" style="width: 100vw; height: auto;" />
+
+    <script>
+        const canvas = document.getElementById('wallpaper');
+        const ctx = canvas.getContext('2d');
+        const imgDisplay = document.getElementById('output');
+
+        // Layout Configuration for iPhone 13 Mini
+        const config = {
+            width: 1080,
+            height: 2340,
+            startY: 750,      // Pushes dots down to clear the clock
+            footerY: 2050,    // Pushes text up to clear the torch/camera
+            columns: 14,
+            dotRadius: 13,
+            spacing: 48,
+            bgColor: "#121212",
+            dotPast: "#FFFFFF",
+            dotToday: "#FF4500",
+            dotFuture: "#333333",
+            textColor: "#FF4500"
+        };
+
+        // Date Logic
+        const now = new Date();
+        const start = new Date(now.getFullYear(), 0, 0);
+        const diff = now - start;
+        const oneDay = 1000 * 60 * 60 * 24;
+        const dayOfYear = Math.floor(diff / oneDay);
+        const isLeap = (now.getFullYear() % 4 === 0);
+        const totalDays = isLeap ? 366 : 365;
+
+        // Draw
+        ctx.fillStyle = config.bgColor;
+        ctx.fillRect(0, 0, config.width, config.height);
+
+        const startX = (config.width - (config.columns - 1) * config.spacing) / 2;
+
+        for (let i = 0; i < totalDays; i++) {
+            const row = Math.floor(i / config.columns);
+            const col = i % config.columns;
+            const x = startX + col * config.spacing;
+            const y = config.startY + row * config.spacing;
+
+            ctx.beginPath();
+            ctx.arc(x, y, config.dotRadius, 0, Math.PI * 2);
+            if (i < dayOfYear - 1) ctx.fillStyle = config.dotPast;
+            else if (i === dayOfYear - 1) ctx.fillStyle = config.dotToday;
+            else ctx.fillStyle = config.dotFuture;
+            ctx.fill();
+        }
+
+        // Text
+        const daysLeft = totalDays - dayOfYear;
+        const percent = Math.floor((dayOfYear / totalDays) * 100);
+        ctx.fillStyle = config.textColor;
+        ctx.font = "bold 32px Helvetica";
+        ctx.textAlign = "center";
+        ctx.fillText(`${daysLeft}d left · ${percent}%`, config.width / 2, config.footerY);
+
+        // Display as Image
+        imgDisplay.src = canvas.toDataURL("image/png");
+    </script>
+</body>
+</html>
