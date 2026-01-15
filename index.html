@@ -13,12 +13,11 @@
         const ctx = canvas.getContext('2d');
         const imgDisplay = document.getElementById('output');
 
-        // Layout Configuration for iPhone 13 Mini
         const config = {
             width: 1080,
             height: 2340,
-            startY: 750,      // Pushes dots down to clear the clock
-            footerY: 2050,    // Pushes text up to clear the torch/camera
+            startY: 900,      // Increased to clear the widget box
+            footerY: 2100,    
             columns: 14,
             dotRadius: 13,
             spacing: 48,
@@ -26,10 +25,10 @@
             dotPast: "#FFFFFF",
             dotToday: "#FF4500",
             dotFuture: "#333333",
-            textColor: "#FF4500"
+            textDays: "#FF4500", // Red/Orange for days left
+            textPercent: "#333333" // Grey for percentage
         };
 
-        // Date Logic
         const now = new Date();
         const start = new Date(now.getFullYear(), 0, 0);
         const diff = now - start;
@@ -38,7 +37,6 @@
         const isLeap = (now.getFullYear() % 4 === 0);
         const totalDays = isLeap ? 366 : 365;
 
-        // Draw
         ctx.fillStyle = config.bgColor;
         ctx.fillRect(0, 0, config.width, config.height);
 
@@ -58,16 +56,30 @@
             ctx.fill();
         }
 
-        // Text
-        const daysLeft = totalDays - dayOfYear;
-        const percent = Math.floor((dayOfYear / totalDays) * 100);
-        ctx.fillStyle = config.textColor;
+        // Split-Color Footer Logic
+        const daysLeftStr = `${totalDays - dayOfYear}d left`;
+        const percentStr = ` · ${Math.floor((dayOfYear / totalDays) * 100)}%`;
+        
         ctx.font = "bold 32px Helvetica";
         ctx.textAlign = "center";
-        ctx.fillText(`${daysLeft}d left · ${percent}%`, config.width / 2, config.footerY);
+        
+        // Calculate widths to center the combined string
+        const daysWidth = ctx.measureText(daysLeftStr).width;
+        const percentWidth = ctx.measureText(percentStr).width;
+        const totalWidth = daysWidth + percentWidth;
+        
+        const startTextX = (config.width - totalWidth) / 2;
 
-        // Display as Image
-        imgDisplay.src = canvas.toDataURL("image/png");
+        // Draw "days left" in Red/Orange
+        ctx.fillStyle = config.textDays;
+        ctx.textAlign = "left";
+        ctx.fillText(daysLeftStr, startTextX, config.footerY);
+
+        // Draw "percentage" in Grey
+        ctx.fillStyle = config.textPercent;
+        ctx.fillText(percentStr, startTextX + daysWidth, config.footerY);
+
+        imgDisplay.src = canvas.toURL ? canvas.toDataURL("image/png") : canvas.toDataURL();
     </script>
 </body>
 </html>
