@@ -16,11 +16,13 @@
         const config = {
             width: 1080,
             height: 2340,
-            startY: 1050,     // Pushed down further to clear widgets
-            footerY: 2100,    
-            columns: 14,
+            // 16 columns fits well on the Mini with these settings:
+            startY: 1000,     // Starting lower to clear the widget box
+            footerY: 2050,    // Space for the home bar and icons
+            columns: 16,      // Your requested column count
             dotRadius: 13,
-            spacing: 45,      // Slightly tighter spacing to ensure grid fits
+            spacingX: 55,     // Horizontal spacing
+            spacingY: 42,     // Slightly tighter vertical spacing to keep it compact
             bgColor: "#121212",
             dotPast: "#FFFFFF",
             dotToday: "#FF4500",
@@ -37,17 +39,18 @@
         const isLeap = (now.getFullYear() % 4 === 0);
         const totalDays = isLeap ? 366 : 365;
 
-        // 1. Draw Background
+        // Draw Background
         ctx.fillStyle = config.bgColor;
         ctx.fillRect(0, 0, config.width, config.height);
 
-        // 2. Draw Dots
-        const startX = (config.width - (config.columns - 1) * config.spacing) / 2;
+        // Draw Dots in a 16-column grid
+        const startX = (config.width - (config.columns - 1) * config.spacingX) / 2;
+        
         for (let i = 0; i < totalDays; i++) {
             const row = Math.floor(i / config.columns);
             const col = i % config.columns;
-            const x = startX + col * config.spacing;
-            const y = config.startY + row * config.spacing;
+            const x = startX + col * config.spacingX;
+            const y = config.startY + row * config.spacingY;
 
             ctx.beginPath();
             ctx.arc(x, y, config.dotRadius, 0, Math.PI * 2);
@@ -57,26 +60,22 @@
             ctx.fill();
         }
 
-        // 3. Draw Footer (Fixed Overlap & Split Color)
-        const daysLeftStr = `${totalDays - dayOfYear}d left `; // Added space
+        // Draw Footer with two colors
+        const daysLeftStr = `${totalDays - dayOfYear}d left `;
         const percentStr = `· ${Math.floor((dayOfYear / totalDays) * 100)}%`;
         
-        ctx.font = "bold 34px Helvetica";
+        ctx.font = "bold 32px Helvetica";
         const daysWidth = ctx.measureText(daysLeftStr).width;
         const percentWidth = ctx.measureText(percentStr).width;
         const totalTextWidth = daysWidth + percentWidth;
-        
-        // Calculate centered start position for the whole string
         const textStartX = (config.width - totalTextWidth) / 2;
 
         ctx.textBaseline = "middle";
         ctx.textAlign = "left";
 
-        // Draw Part 1: Red/Orange
         ctx.fillStyle = config.textDays;
         ctx.fillText(daysLeftStr, textStartX, config.footerY);
 
-        // Draw Part 2: Grey
         ctx.fillStyle = config.textPercent;
         ctx.fillText(percentStr, textStartX + daysWidth, config.footerY);
 
