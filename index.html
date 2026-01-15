@@ -16,17 +16,17 @@
         const config = {
             width: 1080,
             height: 2340,
-            startY: 900,      // Increased to clear the widget box
+            startY: 1050,     // Pushed down further to clear widgets
             footerY: 2100,    
             columns: 14,
             dotRadius: 13,
-            spacing: 48,
+            spacing: 45,      // Slightly tighter spacing to ensure grid fits
             bgColor: "#121212",
             dotPast: "#FFFFFF",
             dotToday: "#FF4500",
             dotFuture: "#333333",
-            textDays: "#FF4500", // Red/Orange for days left
-            textPercent: "#333333" // Grey for percentage
+            textDays: "#FF4500", 
+            textPercent: "#333333" 
         };
 
         const now = new Date();
@@ -37,11 +37,12 @@
         const isLeap = (now.getFullYear() % 4 === 0);
         const totalDays = isLeap ? 366 : 365;
 
+        // 1. Draw Background
         ctx.fillStyle = config.bgColor;
         ctx.fillRect(0, 0, config.width, config.height);
 
+        // 2. Draw Dots
         const startX = (config.width - (config.columns - 1) * config.spacing) / 2;
-
         for (let i = 0; i < totalDays; i++) {
             const row = Math.floor(i / config.columns);
             const col = i % config.columns;
@@ -56,30 +57,30 @@
             ctx.fill();
         }
 
-        // Split-Color Footer Logic
-        const daysLeftStr = `${totalDays - dayOfYear}d left`;
-        const percentStr = ` · ${Math.floor((dayOfYear / totalDays) * 100)}%`;
+        // 3. Draw Footer (Fixed Overlap & Split Color)
+        const daysLeftStr = `${totalDays - dayOfYear}d left `; // Added space
+        const percentStr = `· ${Math.floor((dayOfYear / totalDays) * 100)}%`;
         
-        ctx.font = "bold 32px Helvetica";
-        ctx.textAlign = "center";
-        
-        // Calculate widths to center the combined string
+        ctx.font = "bold 34px Helvetica";
         const daysWidth = ctx.measureText(daysLeftStr).width;
         const percentWidth = ctx.measureText(percentStr).width;
-        const totalWidth = daysWidth + percentWidth;
+        const totalTextWidth = daysWidth + percentWidth;
         
-        const startTextX = (config.width - totalWidth) / 2;
+        // Calculate centered start position for the whole string
+        const textStartX = (config.width - totalTextWidth) / 2;
 
-        // Draw "days left" in Red/Orange
-        ctx.fillStyle = config.textDays;
+        ctx.textBaseline = "middle";
         ctx.textAlign = "left";
-        ctx.fillText(daysLeftStr, startTextX, config.footerY);
 
-        // Draw "percentage" in Grey
+        // Draw Part 1: Red/Orange
+        ctx.fillStyle = config.textDays;
+        ctx.fillText(daysLeftStr, textStartX, config.footerY);
+
+        // Draw Part 2: Grey
         ctx.fillStyle = config.textPercent;
-        ctx.fillText(percentStr, startTextX + daysWidth, config.footerY);
+        ctx.fillText(percentStr, textStartX + daysWidth, config.footerY);
 
-        imgDisplay.src = canvas.toURL ? canvas.toDataURL("image/png") : canvas.toDataURL();
+        imgDisplay.src = canvas.toDataURL("image/png");
     </script>
 </body>
 </html>
