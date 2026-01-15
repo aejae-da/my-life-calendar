@@ -18,7 +18,7 @@
             height: 2340,
             // 16 columns fits well on the Mini with these settings:
             startY: 980,     // Starting lower to clear the widget box
-            footerY: 2125,    // Space for the home bar and icons
+            footerY: 2200,    // Space for the home bar and icons
             columns: 15,      // Your requested column count
             dotRadius: 13,
             spacingX: 55,     // Horizontal spacing
@@ -64,7 +64,7 @@
         const daysLeftStr = `${totalDays - dayOfYear}d left `;
         const percentStr = `· ${Math.floor((dayOfYear / totalDays) * 100)}%`;
         
-        ctx.font = "bold 36px Helvetica";
+        ctx.font = "bold 40px Helvetica";
         const daysWidth = ctx.measureText(daysLeftStr).width;
         const percentWidth = ctx.measureText(percentStr).width;
         const totalTextWidth = daysWidth + percentWidth;
