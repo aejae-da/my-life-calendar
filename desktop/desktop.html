@@ -1,1 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>body { margin: 0; background: #000; display: flex; justify-content: center; }</style>
+</head>
+<body>
+    <canvas id="wallpaper" width="1080" height="2340" style="display:none;"></canvas>
+    <img id="output" style="width: 100vw; height: auto;" />
 
+    <script>
+        const canvas = document.getElementById('wallpaper');
+        const ctx = canvas.getContext('2d');
+        const imgDisplay = document.getElementById('output');
+
+        const config = {
+            width: 1920,
+            height: 1080,
+            // 16 columns fits well on the Mini with these settings:
+            startY: 200,     // Starting lower to clear the widget box
+            footerY: 950,    // Space for the home bar and icons
+            columns: 40,      // Your requested column count
+            dotRadius: 13,
+            spacingX: 40,     // Horizontal spacing
+            spacingY: 30,     // Slightly tighter vertical spacing to keep it compact
+            bgColor: "#1A1A1A",
+            dotPast: "#FFFFFF",
+            dotToday: "#FF3B30",
+            dotFuture: "#404040",
+            textDays: "#FF3B30", 
+            textPercent: "#404040" 
+        };
+
+        const now = new Date();
+        const start = new Date(now.getFullYear(), 0, 0);
+        const diff = now - start;
+        const oneDay = 1000 * 60 * 60 * 24;
+        const dayOfYear = Math.floor(diff / oneDay);
+        const isLeap = (now.getFullYear() % 4 === 0);
+        const totalDays = isLeap ? 366 : 365;
+
+        // Draw Background
+        ctx.fillStyle = config.bgColor;
+        ctx.fillRect(0, 0, config.width, config.height);
+
+        // Draw Dots in a 16-column grid
+        const startX = (config.width - (config.columns - 1) * config.spacingX) / 2;
+        
+        for (let i = 0; i < totalDays; i++) {
+            const row = Math.floor(i / config.columns);
+            const col = i % config.columns;
+            const x = startX + col * config.spacingX;
+            const y = config.startY + row * config.spacingY;
+
+            ctx.beginPath();
+            ctx.arc(x, y, config.dotRadius, 0, Math.PI * 2);
+            if (i < dayOfYear - 1) ctx.fillStyle = config.dotPast;
+            else if (i === dayOfYear - 1) ctx.fillStyle = config.dotToday;
+            else ctx.fillStyle = config.dotFuture;
+            ctx.fill();
+        }
+
+        // Draw Footer with two colors
+        const daysLeftStr = `${totalDays - dayOfYear}d left `;
+        const percentStr = `· ${Math.floor((dayOfYear / totalDays) * 100)}%`;
+        
+        ctx.font = "bold 40px Helvetica";
+        const daysWidth = ctx.measureText(daysLeftStr).width;
+        const percentWidth = ctx.measureText(percentStr).width;
+        const totalTextWidth = daysWidth + percentWidth;
+        const textStartX = (config.width - totalTextWidth) / 2;
+
+        ctx.textBaseline = "middle";
+        ctx.textAlign = "left";
+
+        ctx.fillStyle = config.textDays;
+        ctx.fillText(daysLeftStr, textStartX, config.footerY);
+
+        ctx.fillStyle = config.textPercent;
+        ctx.fillText(percentStr, textStartX + daysWidth, config.footerY);
+
+        imgDisplay.src = canvas.toDataURL("image/png");
+    </script>
+</body>
+</html>
