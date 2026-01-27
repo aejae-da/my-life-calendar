@@ -2,27 +2,28 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>body { margin: 0; background: #000; display: flex; justify-content: center; }</style>
+    <style>
+        body { margin: 0; background: #1A1A1A; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+        canvas { display: block; }
+    </style>
 </head>
 <body>
-    <canvas id="wallpaper" width="1920" height="1080" style="display:none;"></canvas>
-    <img id="output" style="width: 100vw; height: auto;" />
+    <canvas id="wallpaper"></canvas>
 
     <script>
         const canvas = document.getElementById('wallpaper');
         const ctx = canvas.getContext('2d');
-        const imgDisplay = document.getElementById('output');
 
         const config = {
             width: 1920,
             height: 1080,
-            // 16 columns fits well on the Mini with these settings:
-            startY: 200,     // Starting lower to clear the widget box
-            footerY: 950,    // Space for the home bar and icons
-            columns: 40,      // Your requested column count
+            // Adjusted for horizontal desktop layout:
+            startY: 250,      
+            footerY: 900,     
+            columns: 32,      // Wider grid for desktop
             dotRadius: 13,
-            spacingX: 40,     // Horizontal spacing
-            spacingY: 30,     // Slightly tighter vertical spacing to keep it compact
+            spacingX: 45,     
+            spacingY: 40,     
             bgColor: "#1A1A1A",
             dotPast: "#FFFFFF",
             dotToday: "#FF3B30",
@@ -30,6 +31,9 @@
             textDays: "#FF3B30", 
             textPercent: "#404040" 
         };
+
+        canvas.width = config.width;
+        canvas.height = config.height;
 
         const now = new Date();
         const start = new Date(now.getFullYear(), 0, 0);
@@ -43,7 +47,7 @@
         ctx.fillStyle = config.bgColor;
         ctx.fillRect(0, 0, config.width, config.height);
 
-        // Draw Dots in a 16-column grid
+        // Draw Dots
         const startX = (config.width - (config.columns - 1) * config.spacingX) / 2;
         
         for (let i = 0; i < totalDays; i++) {
@@ -60,7 +64,7 @@
             ctx.fill();
         }
 
-        // Draw Footer with two colors
+        // Draw Footer
         const daysLeftStr = `${totalDays - dayOfYear}d left `;
         const percentStr = `· ${Math.floor((dayOfYear / totalDays) * 100)}%`;
         
@@ -78,8 +82,6 @@
 
         ctx.fillStyle = config.textPercent;
         ctx.fillText(percentStr, textStartX + daysWidth, config.footerY);
-
-        imgDisplay.src = canvas.toDataURL("image/png");
     </script>
 </body>
 </html>
